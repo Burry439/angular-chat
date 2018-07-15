@@ -3,6 +3,7 @@ const cors = require("cors");
 const Pusher = require("pusher");
 const express = require("express");
 const bodyParser = require("body-parser");
+const path = require('path');
 
 
 
@@ -11,7 +12,10 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, 'public')));
 
+
+const port = process.env.PORT || 8080;
 
 const pusher = new Pusher({
     appId: `${process.env.PUSHER_APP_ID}`,
@@ -21,6 +25,11 @@ const pusher = new Pusher({
     encrypted: true
 });
 
+
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/index.html'));
+  });
 
 app.post("/message", function(req, res){
     console.log(req.body)
@@ -41,5 +50,5 @@ app.post("/update", function(req, res){
 
 
 
-    app.listen("8080");
+    app.listen(port);
     console.log("Listening on localhost:8080");
