@@ -27,7 +27,9 @@ const pusher = new Pusher({
 
 
 
-
+app.get("/test", (req,res) =>{
+    res.json("running on node")
+})
 
 app.post("/message", function(req, res){
     console.log(req.body)
