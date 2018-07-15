@@ -27,9 +27,7 @@ const pusher = new Pusher({
 
 
 
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/index.html'));
-  });
+
 
 app.post("/message", function(req, res){
     console.log(req.body)
@@ -47,7 +45,9 @@ app.post("/update", function(req, res){
 });
 
 
-
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/index.html'));
+  });
 
 
     app.listen(port);
