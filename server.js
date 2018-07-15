@@ -1,4 +1,3 @@
-require("dotenv").config();
 const cors = require("cors");
 const Pusher = require("pusher");
 const express = require("express");
@@ -15,7 +14,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-const port = process.env.PORT || 8080;
+const port = require("dotenv").config() || 8080;
 
 const pusher = new Pusher({
     appId: `${process.env.PUSHER_APP_ID}`,
