@@ -590,35 +590,35 @@ var AuthService = /** @class */ (function () {
         this.http = http;
     }
     ///////develpoment
-    AuthService.prototype.registerUser = function (user) {
-        var headers = new _angular_http__WEBPACK_IMPORTED_MODULE_1__["Headers"]();
-        headers.append('content-type', 'application/json');
-        return this.http.post('http://localhost:8080/users/register', user, { headers: headers })
-            .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_2__["map"])(function (res) { return res.json(); }));
-    };
-    AuthService.prototype.authenticateUser = function (user) {
-        var headers = new _angular_http__WEBPACK_IMPORTED_MODULE_1__["Headers"]();
-        headers.append('content-type', 'application/json');
-        return this.http.post('http://localhost:8080/users/authenticate', user, { headers: headers })
-            .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_2__["map"])(function (res) { return res.json(); }));
-    };
-    ///////////////////////
-    ////////production
     // registerUser(user)
     // { 
     //   let headers = new Headers();
     //   headers.append('content-type', 'application/json')
-    //   return this.http.post('users/register',user,{headers:headers})
+    //   return this.http.post('http://localhost:8080/users/register',user,{headers:headers})
     //   .pipe(map(res => res.json()))
     // }
     // authenticateUser(user):Observable<any>
     // {
     //  let headers = new Headers();
     //   headers.append('content-type', 'application/json')
-    //   return  this.http.post('users/authenticate', user, {headers:headers})
+    //   return  this.http.post('http://localhost:8080/users/authenticate', user, {headers:headers})
     //   ///type it out like this exactly !!!!!!!
     //   .pipe(map(res => res.json()))
     // }
+    ///////////////////////
+    ////////production
+    AuthService.prototype.registerUser = function (user) {
+        var headers = new _angular_http__WEBPACK_IMPORTED_MODULE_1__["Headers"]();
+        headers.append('content-type', 'application/json');
+        return this.http.post('users/register', user, { headers: headers })
+            .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_2__["map"])(function (res) { return res.json(); }));
+    };
+    AuthService.prototype.authenticateUser = function (user) {
+        var headers = new _angular_http__WEBPACK_IMPORTED_MODULE_1__["Headers"]();
+        headers.append('content-type', 'application/json');
+        return this.http.post('users/authenticate', user, { headers: headers })
+            .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_2__["map"])(function (res) { return res.json(); }));
+    };
     //////////////////////////////
     AuthService.prototype.loadToken = function () {
         ///id_token is the default name 
@@ -761,23 +761,12 @@ var PusherService = /** @class */ (function () {
         this.channel = this.pusher.subscribe('events-channel');
     }
     /////////////production///////////////
-    //   like( num_likes ) {
-    //     this.http.post('/update', {'likes': num_likes})
-    //     .subscribe(data => {});
-    //   }
-    //   msg( chat ) {
-    //  this.http.post('/message', {'chat': chat})
-    //  .subscribe(data =>{
-    //  })
-    // }
-    //////////////////////////////////////////////
-    ///////////////development/////////////////
     PusherService.prototype.like = function (num_likes) {
-        this.http.post('http://localhost:8080/websocket/update', { 'likes': num_likes })
+        this.http.post('/update', { 'likes': num_likes })
             .subscribe(function (data) { });
     };
     PusherService.prototype.msg = function (chat) {
-        this.http.post('http://localhost:8080/websocket/message', { 'chat': chat })
+        this.http.post('/message', { 'chat': chat })
             .subscribe(function (data) {
         });
     };
