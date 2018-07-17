@@ -4,7 +4,23 @@ const Pusher = require("pusher");
 const express = require("express");
 const bodyParser = require("body-parser");
 const path = require('path');
+const mongoose = require("mongoose");
+const config = require('./config/database')
+const passport = require('passport')
 
+
+
+
+
+mongoose.connect(config.database)
+
+mongoose.connection.on('connected', ()=>{
+    console.log("connected to db " + config.database)
+})
+
+mongoose.connection.on('error', (err)=>{
+    console.log("database error " + err)
+})
 
 
 const app = express();
@@ -13,38 +29,23 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
-
-
 const port = process.env.PORT || 8080;
 
-const pusher = new Pusher({
-    appId: `${process.env.PUSHER_APP_ID}`,
-    key: `${process.env.PUSHER_API_KEY}`,
-    secret: `${process.env.PUSHER_API_SECRET}`,
-    cluster: `${process.env.PUSHER_APP_CLUSTER}`,
-    encrypted: true
-});
+const users = require('./routes/users')
+const webSocket = require('./routes/websocket')
+
+app.use(passport.initialize())
+
+app.use(passport.session())
+
+require('./config/passport')(passport)
+
+app.use('/users', users)
+app.use('/websocket', webSocket)
 
 
 
-app.get("/test", (req,res) =>{
-    res.json("running on node")
-})
 
-app.post("/message", function(req, res){
-    console.log(req.body)
-    pusher.trigger("events-channel", 'new-msg', {
-     chat:req.body 
-    });
-  
-});
-
-
-app.post("/update", function(req, res){
-    pusher.trigger("events-channel", "new-like", {
-     likes: {likes : req.body.likes}
-    });
-});
 
 
 app.get('*', (req, res) => {
