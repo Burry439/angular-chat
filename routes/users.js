@@ -17,7 +17,6 @@ router.post('/register',(req,res,next)=>{
         lastname: req.body.lastname,
         password: req.body.password,
         profilePic: 'uploads/default.png',
-        events: req.body.events
        
     })
     User.findOne({email:req.body.email},(err,user)=>{
