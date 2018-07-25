@@ -41,7 +41,7 @@ app.use(passport.session())
 require('./config/passport')(passport)
 
 app.use('/users', users)
-app.use('/websocket', webSocket)
+ app.use('/websocket', webSocket.router)
 
 
 

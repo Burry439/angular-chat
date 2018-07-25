@@ -4,9 +4,7 @@ const User = require('../models/user')
 const passport = require('passport')
 const jwt = require("jsonwebtoken")
 const config = require("../config/database")
-
-
-
+const webSockets = require('./websocket')
 
 router.post('/register',(req,res,next)=>{
     console.log(req.body)
@@ -16,6 +14,7 @@ router.post('/register',(req,res,next)=>{
         email: req.body.email,
         lastname: req.body.lastname,
         password: req.body.password,       
+        online: req.body.online
     })
     User.findOne({email:req.body.email},(err,user)=>{
         if(user)    
@@ -52,14 +51,16 @@ router.post('/authenticate', (req,res,next)=>{
         {
           return  res.json({success: false, message: "user not found"})
         }
+
+      
         User.comparePassword(password, user.password, (err, isMatch)=>{
             if(err) throw err
-            if(isMatch)
+            if(isMatch &&  user.online == false)
             {   
                 
                 const token = jwt.sign({data:user}, config.secret, 
                 {
-                  expiresIn:600,
+                  expiresIn:6000000,
                 })  
                 res.json({
                 success:true,
@@ -70,9 +71,13 @@ router.post('/authenticate', (req,res,next)=>{
                     firstname: user.firstname,
                     email: user.email,
                     lastname: user.lastname,
-                    profilePic: user.profilePic
+                    profilePic: user.profilePic,
                 }
                 })
+            }
+            else if(isMatch && user.online == true)
+            {
+                return res.json({success: false , loggedIn: true, message: "Some one has already logged into this account"})
             }
             else
             {
@@ -87,13 +92,12 @@ router.post('/authenticate', (req,res,next)=>{
 
 
 
-router.get('/profile', passport.authenticate('jwt', {session: false}), (req,res)=>{
+// router.get('/profile', passport.authenticate('jwt', {session: false}), (req,res)=>{
                                                                             
-    User.findById(req.user._id,(err,user)=>{
-                console.log(user.attending)
-                res.json(user)     
-    })
-})
+//     User.findById(req.user._id,(err,user)=>{
+//                 res.json(user)     
+//     })
+// })
 
 
 module.exports = router
