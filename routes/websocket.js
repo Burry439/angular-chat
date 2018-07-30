@@ -12,7 +12,7 @@ const router = express.Router()
 
 
 
-users = []
+onlineUsers = []
 
 const pusher = new Pusher({
     appId: `${process.env.PUSHER_APP_ID}`,
@@ -24,62 +24,59 @@ const pusher = new Pusher({
 
 
 //// get all users//////////////
+
+setInterval(() => {
+    User.find({},(err,user)=>{
+        for(i = 0; i < user.length; i++)
+        {   
+            
+            user[i].online = false
+            console.log(user[i].online + "yo")
+            user[i].save()
+        }    
+    });
+
+
+    pusher.trigger("events-channel", 'test-still-online-channel',{
+        msg:"test chanel"
+        })
+        UpdateOnlineUser()
+}, 5000)
+
+
+
+UpdateOnlineUser = ()=>{
+    setInterval(() => {
+        User.find({},(err,users)=>{
+            pusher.trigger("events-channel", 'update-online-users-channel',{
+                users:users
+                })
+        })  
+    }, 3000)
+}
+
+
+
+
 router.get("/getonline", function(req, res){  
     User.find({},(err,users)=>{
          res.json(users)
     })
 });
-//////////////////////////////////////
 
-/////// tell all users you are online
-router.post("/online", function(req, res){
-    console.log("im now online" + req.body.id)
-    User.findById(req.body.id, (err,user)=>{
+
+
+router.put('/stillonline',(req,res)=>{
+    console.log("still online poart")
+    User.findById(req.body.id,(err,user)=>{
         user.online = true
-        user.save(()=>{
-        pusher.trigger("events-channel", 'user-went-online',{
-        user
-   })
-        res.json(user.firstname + "is Online")
-        })
+        console.log(user.firstname + " " + user.online)
+        user.save()
+    })
+    res.json("yo")
 })
-});
-////////////////////////////
 
 
-///////////////logs off user when he signs out ///////////////////
-
-router.put("/offline", function(req, res){
-
-
-    User.findById(req.body.id, (err,user)=>{
-        console.log(user + 'now off')
-        user.online = false;
-        user.save(()=>{
-            pusher.trigger("events-channel", 'user-logged-out',{
-            user
-            }
-        )
-        })
- 
-    })
- });
-////////////////////////////////////////////////////////////////
-
-
-////////////////logs off user when he closses the browser/////////////////////////
-router.put("/disconnect", function(req, res){
-    User.findById(req.body.id, (err,user)=>{
-        user.online = false;
-        user.save(()=>{
-            pusher.trigger("events-channel", 'user-logged-out',{
-            user
-            }
-        )
-        })
-    })
-});
-///////////////////////////////////////////////////////////////////////////////////////
 
 
 //////////////send and recive msgs
@@ -104,4 +101,4 @@ router.post("/update", function(req, res){
 /////////////////////////
 
 
-module.exports = {users:users, router: router}
+module.exports =  router
